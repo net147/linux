@@ -37,7 +37,7 @@
 #define CLK_PLL_PERIPH_BASE	14
 #define CLK_PLL_PERIPH		15
 #define CLK_PLL_PERIPH_SATA	16
-#define CLK_PLL_VIDEO1		17
+/* The PLL_VIDEO1 clock is exported */
 /* The PLL_VIDEO1_2X clock is exported */
 #define CLK_PLL_GPU		19
 
