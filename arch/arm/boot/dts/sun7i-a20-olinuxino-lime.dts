@@ -255,6 +255,10 @@
 	status = "okay";
 };
 
+&rtp {
+	allwinner,ts-attached;
+};
+
 &tcon0_out {
 	tcon0_out_panel: endpoint@0 {
 		reg = <0>;
