@@ -616,6 +616,8 @@
 			       <&dma SUN4I_DMA_NORMAL 16>,
 			       <&dma SUN4I_DMA_DEDICATED 24>;
 			dma-names = "ddc-tx", "ddc-rx", "audio-tx";
+			assigned-clocks = <&ccu CLK_DE_BE1>, <&ccu CLK_DE_FE1>, <&ccu CLK_TCON1_CH0>, <&ccu CLK_TCON1_CH1_SCLK2>, <&ccu CLK_HDMI>;
+			assigned-clock-parents = <&ccu CLK_PLL_VIDEO1>, <&ccu CLK_PLL_VIDEO1>, <&ccu CLK_PLL_VIDEO1>, <&ccu CLK_PLL_VIDEO1>, <&ccu CLK_PLL_VIDEO1>;
 			status = "disabled";
 
 			ports {

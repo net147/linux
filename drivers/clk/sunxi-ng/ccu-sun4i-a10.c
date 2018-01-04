@@ -693,13 +693,15 @@ static SUNXI_CCU_M_WITH_MUX_GATE(de_be0_clk, "de-be0", de_parents,
 				 0x104, 0, 4, 24, 2, BIT(31), 0);
 
 static SUNXI_CCU_M_WITH_MUX_GATE(de_be1_clk, "de-be1", de_parents,
-				 0x108, 0, 4, 24, 2, BIT(31), 0);
+				 0x108, 0, 4, 24, 2, BIT(31),
+				 CLK_SET_RATE_NO_REPARENT);
 
 static SUNXI_CCU_M_WITH_MUX_GATE(de_fe0_clk, "de-fe0", de_parents,
 				 0x10c, 0, 4, 24, 2, BIT(31), 0);
 
 static SUNXI_CCU_M_WITH_MUX_GATE(de_fe1_clk, "de-fe1", de_parents,
-				 0x110, 0, 4, 24, 2, BIT(31), 0);
+				 0x110, 0, 4, 24, 2, BIT(31),
+				 CLK_SET_RATE_NO_REPARENT);
 
 /* Undocumented on A10 */
 static SUNXI_CCU_M_WITH_MUX_GATE(de_mp_clk, "de-mp", de_parents,
@@ -710,7 +712,8 @@ static const char *const disp_parents[] = { "pll-video0", "pll-video1",
 static SUNXI_CCU_MUX_WITH_GATE(tcon0_ch0_clk, "tcon0-ch0-sclk", disp_parents,
 			       0x118, 24, 2, BIT(31), CLK_SET_RATE_PARENT);
 static SUNXI_CCU_MUX_WITH_GATE(tcon1_ch0_clk, "tcon1-ch0-sclk", disp_parents,
-			       0x11c, 24, 2, BIT(31), CLK_SET_RATE_PARENT);
+			       0x11c, 24, 2, BIT(31), CLK_SET_RATE_PARENT |
+						      CLK_SET_RATE_NO_REPARENT);
 
 static const char *const csi_sclk_parents[] = { "pll-video0", "pll-ve",
 						"pll-ddr-other", "pll-periph" };
@@ -750,7 +753,8 @@ static SUNXI_CCU_M_WITH_GATE(tcon0_ch1_clk,
 static SUNXI_CCU_M_WITH_MUX_GATE(tcon1_ch1_sclk2_clk, "tcon1-ch1-sclk2",
 				 disp_parents,
 				 0x130, 0, 4, 24, 2, BIT(31),
-				 CLK_SET_RATE_PARENT);
+				 CLK_SET_RATE_PARENT |
+				 CLK_SET_RATE_NO_REPARENT);
 
 static SUNXI_CCU_M_WITH_GATE(tcon1_ch1_clk,
 			     "tcon1-ch1-sclk1", "tcon1-ch1-sclk2",
@@ -781,7 +785,8 @@ static SUNXI_CCU_M_WITH_MUX_GATE(ace_clk, "ace", ace_parents,
 
 static SUNXI_CCU_M_WITH_MUX_GATE(hdmi_clk, "hdmi", disp_parents,
 				 0x150, 0, 4, 24, 2, BIT(31),
-				 CLK_SET_RATE_PARENT);
+				 CLK_SET_RATE_PARENT |
+				 CLK_SET_RATE_NO_REPARENT);
 
 static const char *const gpu_parents_sun4i[] = { "pll-video0", "pll-ve",
 						 "pll-ddr-other",

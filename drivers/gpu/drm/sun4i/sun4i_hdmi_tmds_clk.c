@@ -10,6 +10,7 @@
  * the License, or (at your option) any later version.
  */
 
+#include <linux/clk.h>
 #include <linux/clk-provider.h>
 
 #include "sun4i_hdmi.h"
@@ -82,7 +83,7 @@ static int sun4i_tmds_determine_rate(struct clk_hw *hw,
 	 * clock, so we should not need to do anything.
 	 */
 
-	for (p = 0; p < clk_hw_get_num_parents(hw); p++) {
+	for (p = 1; p < clk_hw_get_num_parents(hw); p++) {
 		parent = clk_hw_get_parent_by_index(hw, p);
 		if (!parent)
 			continue;
@@ -225,7 +226,6 @@ int sun4i_tmds_create(struct sun4i_hdmi *hdmi)
 	init.ops = &sun4i_tmds_ops;
 	init.parent_names = parents;
 	init.num_parents = 2;
-	init.flags = CLK_SET_RATE_PARENT;
 
 	tmds->hdmi = hdmi;
 	tmds->hw.init = &init;
@@ -234,6 +234,8 @@ int sun4i_tmds_create(struct sun4i_hdmi *hdmi)
 	hdmi->tmds_clk = devm_clk_register(hdmi->dev, &tmds->hw);
 	if (IS_ERR(hdmi->tmds_clk))
 		return PTR_ERR(hdmi->tmds_clk);
+
+	clk_set_parent(tmds->hw.clk, clk_hw_get_parent_by_index(&tmds->hw, 1)->clk);
 
 	return 0;
 }
