@@ -331,7 +331,7 @@ static void queue_pending_output_urbs(struct snd_usb_endpoint *ep)
 		if (ep->next_packet_read_pos != ep->next_packet_write_pos) {
 			packet = ep->next_packet + ep->next_packet_read_pos;
 			ep->next_packet_read_pos++;
-			ep->next_packet_read_pos %= MAX_URBS;
+			ep->next_packet_read_pos %= ep->chip->max_urbs;
 
 			/* take URB out of FIFO */
 			if (!list_empty(&ep->ready_playback_urbs))
@@ -599,7 +599,7 @@ static void release_urbs(struct snd_usb_endpoint *ep, int force)
 		release_urb_ctx(&ep->urb[i]);
 
 	if (ep->syncbuf)
-		usb_free_coherent(ep->chip->dev, SYNC_URBS * 4,
+		usb_free_coherent(ep->chip->dev, ep->chip->sync_urbs * 4,
 				  ep->syncbuf, ep->sync_dma);
 
 	ep->syncbuf = NULL;
@@ -692,10 +692,10 @@ static int data_ep_set_params(struct snd_usb_endpoint *ep,
 
 	if (snd_usb_get_speed(ep->chip->dev) != USB_SPEED_FULL) {
 		packs_per_ms = 8 >> ep->datainterval;
-		max_packs_per_urb = MAX_PACKS_HS;
+		max_packs_per_urb = ep->chip->max_packs_hs;
 	} else {
 		packs_per_ms = 1;
-		max_packs_per_urb = MAX_PACKS;
+		max_packs_per_urb = ep->chip->max_packs;
 	}
 	if (sync_ep && !snd_usb_endpoint_implicit_feedback_sink(ep))
 		max_packs_per_urb = min(max_packs_per_urb,
@@ -731,13 +731,13 @@ static int data_ep_set_params(struct snd_usb_endpoint *ep,
 		urb_packs = min(max_packs_per_urb, urb_packs);
 		while (urb_packs > 1 && urb_packs * maxsize >= period_bytes)
 			urb_packs >>= 1;
-		ep->nurbs = MAX_URBS;
+		ep->nurbs = ep->chip->max_urbs;
 
 	/*
 	 * Playback endpoints without implicit sync are adjusted so that
 	 * a period fits as evenly as possible in the smallest number of
 	 * URBs.  The total number of URBs is adjusted to the size of the
-	 * ALSA buffer, subject to the MAX_URBS and MAX_QUEUE limits.
+	 * ALSA buffer, subject to the max_urbs and max_queue limits.
 	 */
 	} else {
 		/* determine how small a packet can be */
@@ -762,8 +762,8 @@ static int data_ep_set_params(struct snd_usb_endpoint *ep,
 					urbs_per_period);
 
 		/* try to use enough URBs to contain an entire ALSA buffer */
-		max_urbs = min((unsigned) MAX_URBS,
-				MAX_QUEUE * packs_per_ms / urb_packs);
+		max_urbs = min((unsigned int) ep->chip->max_urbs,
+				ep->chip->max_queue * packs_per_ms / urb_packs);
 		ep->nurbs = min(max_urbs, urbs_per_period * periods_per_buffer);
 	}
 
@@ -808,12 +808,12 @@ static int sync_ep_set_params(struct snd_usb_endpoint *ep)
 {
 	int i;
 
-	ep->syncbuf = usb_alloc_coherent(ep->chip->dev, SYNC_URBS * 4,
+	ep->syncbuf = usb_alloc_coherent(ep->chip->dev, ep->chip->sync_urbs * 4,
 					 GFP_KERNEL, &ep->sync_dma);
 	if (!ep->syncbuf)
 		return -ENOMEM;
 
-	for (i = 0; i < SYNC_URBS; i++) {
+	for (i = 0; i < ep->chip->sync_urbs; i++) {
 		struct snd_urb_ctx *u = &ep->urb[i];
 		u->index = i;
 		u->ep = ep;
@@ -832,7 +832,7 @@ static int sync_ep_set_params(struct snd_usb_endpoint *ep)
 		u->urb->complete = snd_complete_urb;
 	}
 
-	ep->nurbs = SYNC_URBS;
+	ep->nurbs = ep->chip->sync_urbs;
 
 	return 0;
 
@@ -1144,7 +1144,7 @@ void snd_usb_handle_sync_urb(struct snd_usb_endpoint *ep,
 		}
 
 		ep->next_packet_write_pos++;
-		ep->next_packet_write_pos %= MAX_URBS;
+		ep->next_packet_write_pos %= ep->chip->max_urbs;
 		spin_unlock_irqrestore(&ep->lock, flags);
 		queue_pending_output_urbs(ep);
 

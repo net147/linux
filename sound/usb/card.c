@@ -81,6 +81,11 @@ static bool enable[SNDRV_CARDS] = SNDRV_DEFAULT_ENABLE_PNP;/* Enable this card *
 /* Vendor/product IDs for this card */
 static int vid[SNDRV_CARDS] = { [0 ... (SNDRV_CARDS-1)] = -1 };
 static int pid[SNDRV_CARDS] = { [0 ... (SNDRV_CARDS-1)] = -1 };
+static int max_packs = 6;	/* per URB */
+static int max_packs_hs = 6 * 8;	/* in high speed mode */
+static int max_urbs = 12;
+static int sync_urbs = 4;	/* always four urbs for sync */
+static int max_queue = 18;	/* try not to exceed this queue length, in ms */
 static int device_setup[SNDRV_CARDS]; /* device parameter for this card */
 static bool ignore_ctl_error;
 static bool autoclock = true;
@@ -98,6 +103,16 @@ module_param_array(vid, int, NULL, 0444);
 MODULE_PARM_DESC(vid, "Vendor ID for the USB audio device.");
 module_param_array(pid, int, NULL, 0444);
 MODULE_PARM_DESC(pid, "Product ID for the USB audio device.");
+module_param(max_packs, int, 0644);
+MODULE_PARM_DESC(max_packs, "Max. number of packets per URB in low speed mode");
+module_param(max_packs_hs, int, 0644);
+MODULE_PARM_DESC(max_packs_hs, "Max. number of packets per URB in high speed mode");
+module_param(max_urbs, int, 0644);
+MODULE_PARM_DESC(max_urbs, "Max. number of URBs");
+module_param(sync_urbs, int, 0644);
+MODULE_PARM_DESC(sync_urbs, "Number of URBs for sync");
+module_param(max_queue, int, 0644);
+MODULE_PARM_DESC(max_queue, "Try not to exceed this queue length, in ms");
 module_param_array(device_setup, int, NULL, 0444);
 MODULE_PARM_DESC(device_setup, "Specific device setup (if needed).");
 module_param(ignore_ctl_error, bool, 0444);
@@ -486,6 +501,16 @@ static int snd_usb_audio_create(struct usb_interface *intf,
 	chip->dev = dev;
 	chip->card = card;
 	chip->setup = device_setup[idx];
+	chip->max_packs = min(max(1, max_packs), MAX_PACKS_LIMIT);
+	dev_info(&dev->dev, "snd-usb-audio: max_packs: %d\n", chip->max_packs);
+	chip->max_packs_hs = min(max(1, max_packs_hs), MAX_PACKS_LIMIT);
+	dev_info(&dev->dev, "snd-usb-audio: max_packs_hs: %d\n", chip->max_packs_hs);
+	chip->max_urbs = min(max(1, max_urbs), MAX_URBS_LIMIT);
+	dev_info(&dev->dev, "snd-usb-audio: max_urbs: %d\n", chip->max_urbs);
+	chip->sync_urbs = min(max(1, sync_urbs), MAX_URBS_LIMIT);
+	dev_info(&dev->dev, "snd-usb-audio: sync_urbs: %d\n", chip->sync_urbs);
+	chip->max_queue = max(1, max_queue);
+	dev_info(&dev->dev, "snd-usb-audio: max_queue: %d\n", chip->max_queue);
 	chip->autoclock = autoclock;
 	atomic_set(&chip->active, 1); /* avoid autopm during probing */
 	atomic_set(&chip->usage_count, 0);

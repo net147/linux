@@ -3,11 +3,8 @@
 #define __USBAUDIO_CARD_H
 
 #define MAX_NR_RATES	1024
-#define MAX_PACKS	6		/* per URB */
-#define MAX_PACKS_HS	(MAX_PACKS * 8)	/* in high speed mode */
-#define MAX_URBS	12
-#define SYNC_URBS	4	/* always four urbs for sync */
-#define MAX_QUEUE	18	/* try not to exceed this queue length, in ms */
+#define MAX_PACKS_LIMIT	64
+#define MAX_URBS_LIMIT	32
 
 struct audioformat {
 	struct list_head list;
@@ -46,7 +43,7 @@ struct snd_urb_ctx {
 	struct snd_usb_endpoint *ep;
 	int index;	/* index for urb array */
 	int packets;	/* number of packets per urb */
-	int packet_size[MAX_PACKS_HS]; /* size of packets for next submission */
+	int packet_size[MAX_PACKS_LIMIT];	/* size of packets for next submission */
 	struct list_head ready_list;
 };
 
@@ -67,12 +64,12 @@ struct snd_usb_endpoint {
 	struct snd_usb_endpoint *sync_master;
 	struct snd_usb_endpoint *sync_slave;
 
-	struct snd_urb_ctx urb[MAX_URBS];
+	struct snd_urb_ctx urb[MAX_URBS_LIMIT];
 
 	struct snd_usb_packet_info {
-		uint32_t packet_size[MAX_PACKS_HS];
+		uint32_t packet_size[MAX_PACKS_LIMIT];
 		int packets;
-	} next_packet[MAX_URBS];
+	} next_packet[MAX_URBS_LIMIT];
 	int next_packet_read_pos, next_packet_write_pos;
 	struct list_head ready_playback_urbs;
 
