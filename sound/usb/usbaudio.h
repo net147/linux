@@ -60,6 +60,11 @@ struct snd_usb_audio {
 	struct list_head mixer_list;	/* list of mixer interfaces */
 
 	int setup;			/* from the 'device_setup' module param */
+	int max_packs;			/* from the 'max_packs' module param */
+	int max_packs_hs;		/* from the 'max_packs_hs' module param */
+	int max_urbs;			/* from the 'max_urbs' module param */
+	int sync_urbs;			/* from the 'sync_urbs' module param */
+	int max_queue;			/* from the 'max_queue' module param */
 	bool autoclock;			/* from the 'autoclock' module param */
 	bool keep_iface;		/* keep interface/altset after closing
 					 * or parameter change
