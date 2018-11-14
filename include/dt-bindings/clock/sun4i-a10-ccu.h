@@ -46,6 +46,7 @@
 #define CLK_PLL_VIDEO0_2X	9
 #define CLK_PLL_VIDEO1		17
 #define CLK_PLL_VIDEO1_2X	18
+#define CLK_PLL_GPU		19
 #define CLK_CPU			20
 
 /* AHB Gates */

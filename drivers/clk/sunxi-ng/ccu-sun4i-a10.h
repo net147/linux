@@ -39,7 +39,7 @@
 #define CLK_PLL_PERIPH_SATA	16
 /* The PLL_VIDEO1 clock is exported */
 /* The PLL_VIDEO1_2X clock is exported */
-#define CLK_PLL_GPU		19
+/* The PLL_GPU clock is exported */
 
 /* The CPU clock is exported */
 #define CLK_AXI			21
