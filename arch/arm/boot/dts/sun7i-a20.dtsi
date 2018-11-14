@@ -1280,6 +1280,7 @@
 			resets = <&ccu RST_GPU>;
 
 			assigned-clocks = <&ccu CLK_GPU>;
+			assigned-clock-parents = <&ccu CLK_PLL_GPU>;
 			assigned-clock-rates = <384000000>;
 		};
 

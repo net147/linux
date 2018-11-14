@@ -802,7 +802,8 @@ static const u8 gpu_table_sun7i[] = { 0, 1, 2, 3, 4 };
 static SUNXI_CCU_M_WITH_MUX_TABLE_GATE(gpu_sun7i_clk, "gpu",
 				       gpu_parents_sun7i, gpu_table_sun7i,
 				       0x154, 0, 4, 24, 3, BIT(31),
-				       CLK_SET_RATE_PARENT);
+				       CLK_SET_RATE_PARENT |
+				       CLK_SET_RATE_NO_REPARENT);
 
 static const char *const mbus_sun4i_parents[] = { "hosc", "pll-periph",
 						  "pll-ddr-other" };
