@@ -65,6 +65,9 @@ struct snd_usb_audio {
 	int max_urbs;			/* from the 'max_urbs' module param */
 	int sync_urbs;			/* from the 'sync_urbs' module param */
 	int max_queue;			/* from the 'max_queue' module param */
+	bool start_playback_on_prepare; /* from the 'start_playback_on_prepare'
+					 * module param
+					 */
 	bool autoclock;			/* from the 'autoclock' module param */
 	bool keep_iface;		/* keep interface/altset after closing
 					 * or parameter change

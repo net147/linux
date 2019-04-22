@@ -923,7 +923,8 @@ static int snd_usb_pcm_prepare(struct snd_pcm_substream *substream)
 
 	/* for playback, submit the URBs now; otherwise, the first hwptr_done
 	 * updates for all URBs would happen at the same time when starting */
-	if (subs->direction == SNDRV_PCM_STREAM_PLAYBACK)
+	if (subs->stream->chip->start_playback_on_prepare &&
+	    subs->direction == SNDRV_PCM_STREAM_PLAYBACK)
 		ret = start_endpoints(subs);
 
  unlock:
@@ -1696,10 +1697,21 @@ static void retire_playback_urb(struct snd_usb_substream *subs,
 static int snd_usb_substream_playback_trigger(struct snd_pcm_substream *substream,
 					      int cmd)
 {
+	int err;
 	struct snd_usb_substream *subs = substream->runtime->private_data;
 
 	switch (cmd) {
 	case SNDRV_PCM_TRIGGER_START:
+		if (!subs->stream->chip->start_playback_on_prepare) {
+			subs->data_endpoint->prepare_data_urb = prepare_playback_urb;
+			subs->data_endpoint->retire_data_urb = retire_playback_urb;
+			err = start_endpoints(subs);
+			if (err < 0)
+				return err;
+			subs->running = 1;
+			return 0;
+		}
+
 		subs->trigger_tstamp_pending_update = true;
 		/* fall through */
 	case SNDRV_PCM_TRIGGER_PAUSE_RELEASE:
